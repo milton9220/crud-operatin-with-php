@@ -3,39 +3,44 @@ define('DB_NAME','data/db.txt');
 function seed($filename){
     $allStudents=array(
         array(
+            'id'    =>'1',
             'fname'  =>'Milton',
             'lname'  =>'Hasan',
-            'age'    =>'15',
-            'class'  =>'7',
-            'roll'   =>'10'
-        ),
-        array(
-            'fname'  =>'Ador',
-            'lname'  =>'Hasan',
-            'age'    =>'15',
-            'class'  =>'7',
-            'roll'   =>'15'
-        ),
-        array(
-            'fname'  =>'Tusar',
-            'lname'  =>'Rahaman',
             'age'    =>'15',
             'class'  =>'7',
             'roll'   =>'1'
         ),
         array(
-            'fname'  =>'Adil',
+            'id'    =>'2',
+            'fname'  =>'Ador',
             'lname'  =>'Hasan',
             'age'    =>'15',
             'class'  =>'7',
             'roll'   =>'2'
         ),
         array(
+            'id'    =>'3',
+            'fname'  =>'Tusar',
+            'lname'  =>'Rahaman',
+            'age'    =>'15',
+            'class'  =>'7',
+            'roll'   =>'3'
+        ),
+        array(
+            'id'    =>'4',
+            'fname'  =>'Adil',
+            'lname'  =>'Hasan',
+            'age'    =>'15',
+            'class'  =>'7',
+            'roll'   =>'4'
+        ),
+        array(
+            'id'    =>'5',
             'fname'  =>'Anik',
             'lname'  =>'kader',
             'age'    =>'15',
             'class'  =>'7',
-            'roll'   =>'20'
+            'roll'   =>'5'
         )
     
     );
@@ -62,8 +67,8 @@ function generateReport(){
            <td><?php printf("%s",$student['age']); ?></td>
            
            <td><?php printf("%s",$student['class']); ?></td>
-           <td><?php printf("%1s",$student['roll']); ?></td>
-           <td><?php printf("<a href='/index.php?task=edit&&roll= %s'>Edit</a> | <a href=/index.php?task=edit&&roll=%s>Delete</a>",$student['roll'],$student['roll']); ?></td>
+           <td><?php printf("%s",$student['roll']); ?></td>
+           <td><?php printf("<a href='/index.php?task=edit&&id= %s'>Edit</a> | <a href=/index.php?task=edit&&roll=%s>Delete</a>",$student['id'],$student['id']); ?></td>
          </tr>
          <?php endforeach; ?> 
     </table>
@@ -82,7 +87,9 @@ function addStudent($fname,$lname,$age,$class,$roll){
         }
     }
     if(!$found){
+        $newId   = count( $allStudents ) + 1;
         $newStudent=array(
+            'id'   =>$newId,
             'fname' =>$fname,
             'lname' =>$lname,
             'age'   =>$age,
@@ -98,4 +105,36 @@ function addStudent($fname,$lname,$age,$class,$roll){
         return false;
     }
 }
+
+function getStudent($id){
+    $getData=file_get_contents(DB_NAME);
+    $allStudents=unserialize($getData);
+    
+    foreach($allStudents as $student){
+        if($student['id'] == $id){
+            return $student;
+        }
+        
+    }
+    return false;
+}
+
+function updateStudent($id,$fname,$lname,$age,$class,$roll){
+    $serialziedData = file_get_contents( DB_NAME );
+    $students       = unserialize( $serialziedData );
+    $students[$id-1]['fname']=$fname;
+    $students[$id-1]['lname']=$lname;
+    $students[$id-1]['age']=$age;
+    $students[$id-1]['class']=$class;
+    $students[$id-1]['roll']=$roll;
+    $serializedData               = serialize( $students );
+    file_put_contents( DB_NAME, $serializedData, LOCK_EX );
+
+    
+
+}
+
+
+
+
 
