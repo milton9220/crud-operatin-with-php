@@ -71,3 +71,31 @@ function generateReport(){
    
 }
 
+function addStudent($fname,$lname,$age,$class,$roll){
+    $getData=file_get_contents(DB_NAME);
+    $allStudents=unserialize($getData);
+    $found=false;
+    foreach($allStudents as $student){
+        if($student['roll'] ==$roll){
+            $found=true;
+            break;
+        }
+    }
+    if(!$found){
+        $newStudent=array(
+            'fname' =>$fname,
+            'lname' =>$lname,
+            'age'   =>$age,
+            'class' =>$class,
+            'roll'  =>$roll
+        );
+        array_push($allStudents,$newStudent);
+        $serializeData=serialize($allStudents);
+        file_put_contents(DB_NAME,$serializeData,LOCK_EX);
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+

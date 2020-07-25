@@ -2,9 +2,33 @@
   require_once "inc/functions.php";
   $task=$_GET['task'] ?? 'report';
   $info='';
+  $error= 0;
   if('seed' ==$task){
      seed(DB_NAME);
      $infor="Seeding complete";
+  }
+  $fname='';
+  $lname='';
+  $age='';
+  $class='';
+  $roll='';
+  if(isset($_POST['submit'])){
+    $fname=filter_input(INPUT_POST,'fname',FILTER_SANITIZE_STRING);
+    $lname=filter_input(INPUT_POST,'lname',FILTER_SANITIZE_STRING);
+    $age=filter_input(INPUT_POST,'age',FILTER_SANITIZE_STRING);
+    $class=filter_input(INPUT_POST,'class',FILTER_SANITIZE_STRING);
+    $roll=filter_input(INPUT_POST,'roll',FILTER_SANITIZE_STRING);
+    if($fname !='' && $lname !='' && $age !='' && $class !='' && $roll !=''){
+      $result=addStudent($fname,$lname,$age,$class,$roll);
+
+      if($result==true){
+        header('location:index.php?task=report');
+      }
+      else{
+        $error=1;
+      }
+      
+    }
   }
 ?>
 <!DOCTYPE html>
@@ -35,12 +59,44 @@
         </div>
     </div>
 
+      <?php if('1'==$error):?>
+        <div class="row">
+      <div class="column column-60 column-offset-20">
+        <blockquote>
+          This roll number is already have taken..please try another one
+        </blockquote>
+      </div>
+    </div>
+      <?php endif;?>
+
     <div class="row">
       <div class="column column-60 column-offset-20">
         <?php 
           if('report' ==$task){
               generateReport();
           }
+        ?>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="column column-60 column-offset-20">
+        <?php 
+          if('add' ==$task):?>
+            <form action="/index.php?task=add" method="POST">
+              <label for="fname">First Name</label>
+              <input type="text" name="fname" id="fname" value="<?php echo $fname; ?>">
+              <label for="lname">Last Name</label>
+              <input type="text" name="lname" id="lname" value="<?php echo $lname; ?>">
+              <label for="age">Age</label>
+              <input type="number" name="age" id="age" value="<?php echo $age; ?>">
+              <label for="class">Class</label>
+              <input type="number" name="class" id="class" value="<?php echo $class; ?>">
+              <label for="roll">Roll</label>
+              <input type="number" name="roll" id="roll" value="<?php echo $roll; ?>">
+              <button type="submit" name="submit">Save</button>
+            </form>   
+          <?php endif;
         ?>
       </div>
     </div>
