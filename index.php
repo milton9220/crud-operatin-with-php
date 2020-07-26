@@ -3,9 +3,18 @@
   $task=$_GET['task'] ?? 'report';
   $info='';
   $error= 0;
+  if('delete'==$task){
+    $id=filter_input(INPUT_GET,'id',FILTER_SANITIZE_STRING);
+    if($id>0){
+      $result=deleteStudent($id);
+      if($result==true){
+        $error=2;
+      }
+    }
+  }
   if('seed' ==$task){
      seed(DB_NAME);
-     $infor="Seeding complete";
+     $info="Seeding complete";
   }
   $fname='';
   $lname='';
@@ -22,8 +31,13 @@
     $id=filter_input(INPUT_POST,'id',FILTER_SANITIZE_STRING);
     if($id){
       if($fname !='' && $lname !='' && $age !='' && $class !='' && $roll !=''){
-        updateStudent($id,$fname,$lname,$age,$class,$roll);
-        header('location:index.php?task=report');
+        $result=updateStudent($id,$fname,$lname,$age,$class,$roll);
+        if($result==true){
+          header('location:index.php?task=report');
+        }
+        else{
+          $error=1;
+        }
       }
     }
     else{
@@ -80,6 +94,16 @@
     </div>
       <?php endif;?>
 
+      <?php if('2'==$error):?>
+        <div class="row">
+      <div class="column column-60 column-offset-20">
+        <blockquote>
+          Student delete successfully....
+        </blockquote>
+      </div>
+    </div>
+      <?php endif;?>
+
     <div class="row">
       <div class="column column-60 column-offset-20">
         <?php 
@@ -121,7 +145,7 @@
             $student=getStudent($id);
             if( $student ):?>
           
-            <form action="/index.php?task=edit" method="POST">
+            <form action="" method="POST">
               <input type="hidden" name="id" value="<?php echo $id ?>">
               <label for="fname">First Name</label>
               <input type="text" name="fname" id="fname" value="<?php echo $student['fname']; ?>">

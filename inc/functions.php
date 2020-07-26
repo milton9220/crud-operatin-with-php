@@ -68,7 +68,7 @@ function generateReport(){
            
            <td><?php printf("%s",$student['class']); ?></td>
            <td><?php printf("%s",$student['roll']); ?></td>
-           <td><?php printf("<a href='/index.php?task=edit&&id= %s'>Edit</a> | <a href=/index.php?task=edit&&roll=%s>Delete</a>",$student['id'],$student['id']); ?></td>
+           <td><?php printf("<a href='/index.php?task=edit&&id= %s'>Edit</a> | <a href=/index.php?task=delete&&id=%s>Delete</a>",$student['id'],$student['id']); ?></td>
          </tr>
          <?php endforeach; ?> 
     </table>
@@ -87,7 +87,7 @@ function addStudent($fname,$lname,$age,$class,$roll){
         }
     }
     if(!$found){
-        $newId   = count( $allStudents ) + 1;
+        $newId   = newId($allStudents);
         $newStudent=array(
             'id'   =>$newId,
             'fname' =>$fname,
@@ -122,16 +122,43 @@ function getStudent($id){
 function updateStudent($id,$fname,$lname,$age,$class,$roll){
     $serialziedData = file_get_contents( DB_NAME );
     $students       = unserialize( $serialziedData );
-    $students[$id-1]['fname']=$fname;
+    $found=false;
+    foreach($students as $student){
+        if($student['roll'] == $roll && $student['id'] !='id'){
+            $found=true;
+            break;
+        }
+    }
+    if(!$found){
+        $students[$id-1]['fname']=$fname;
     $students[$id-1]['lname']=$lname;
     $students[$id-1]['age']=$age;
     $students[$id-1]['class']=$class;
     $students[$id-1]['roll']=$roll;
     $serializedData               = serialize( $students );
     file_put_contents( DB_NAME, $serializedData, LOCK_EX );
+    return true;
+    }
+    else{
+        return false;
+    }
 
     
 
+}
+
+function deleteStudent($id){
+    $serialziedData = file_get_contents( DB_NAME );
+    $students       = unserialize( $serialziedData );
+    unset($students[$id-1]);
+    $serializedData               = serialize( $students );
+    file_put_contents( DB_NAME, $serializedData, LOCK_EX );
+    return true;
+}
+
+function newId($allStudents){
+    $maxId=max(array_column($allStudents,'id'));
+    return $maxId+1;
 }
 
 
