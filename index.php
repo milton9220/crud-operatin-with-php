@@ -1,9 +1,17 @@
 <?php
+session_start();
+$_SESSION['login']=$_SESSION['login'] ?? 0;
+$_SESSION['role']=$_SESSION['role'] ?? '';
+
   require_once "inc/functions.php";
   $task=$_GET['task'] ?? 'report';
   $info='';
   $error= 0;
   if('delete'==$task){
+    if(!isAdmin()){
+      header('location:index.php');
+    }
+  else{
     $id=filter_input(INPUT_GET,'id',FILTER_SANITIZE_STRING);
     if($id>0){
       $result=deleteStudent($id);
@@ -12,7 +20,12 @@
       }
     }
   }
+    
+}
   if('seed' ==$task){
+    if(!isAdmin()){
+      header('location:index.php');
+    }
      seed(DB_NAME);
      $info="Seeding complete";
   }
@@ -32,7 +45,7 @@
     if($id){
       if($fname !='' && $lname !='' && $age !='' && $class !='' && $roll !=''){
         $result=updateStudent($id,$fname,$lname,$age,$class,$roll);
-        if($result==true){
+        if($result){
           header('location:index.php?task=report');
         }
         else{
@@ -76,8 +89,9 @@
         <div class="column column-60 column-offset-20">
             <h2>CRUD PROJECT </h2>
             <p>A sample project to perform CRUD operations using plain files and PHP</p>
+            
             <?php include_once( 'inc/templates/navbar.php' ); ?>
-            <hr/>
+            
             <?php if($info !=''){
                 echo "<p>{$info}</p>";
             } ?>
@@ -141,6 +155,9 @@
         <?php 
           
           if('edit' ==$task):
+            if(!hasSession()){
+              header('location:index.php');
+            }
             $id=filter_input(INPUT_GET,'id',FILTER_SANITIZE_STRING);
             $student=getStudent($id);
             if( $student ):?>

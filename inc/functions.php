@@ -54,11 +54,14 @@ function generateReport(){
     ?>
     <table>
       <tr>
-         <td>Name</td>
-         <td>Age</td>
-         <td>Class</td>
-         <td>Roll</td>
-         <td>Actions</td>
+         <th>Name</th>
+         <th>Age</th>
+         <th>Class</th>
+         <th>Roll</th>
+         <?php if( isAdmin() || isEditor() ): ?>
+          <th>Actions</th>
+         
+         <?php endif; ?>
       </tr>
       <?php 
          foreach($allStudents as $student):?>
@@ -68,7 +71,11 @@ function generateReport(){
            
            <td><?php printf("%s",$student['class']); ?></td>
            <td><?php printf("%s",$student['roll']); ?></td>
-           <td><?php printf("<a href='/index.php?task=edit&&id= %s'>Edit</a> | <a href=/index.php?task=delete&&id=%s>Delete</a>",$student['id'],$student['id']); ?></td>
+           <?php if(isAdmin()):?>
+            <td><?php printf("<a href='/index.php?task=edit&&id= %s'>Edit</a> | <a href=/index.php?task=delete&&id=%s>Delete</a>",$student['id'],$student['id']); ?></td>
+            <?php elseif(isEditor()):?>
+                <td><?php printf("<a href='/index.php?task=edit&&id= %s'>Edit</a> ",$student['id']); ?></td>
+            <?php endif;?>
          </tr>
          <?php endforeach; ?> 
     </table>
@@ -124,7 +131,7 @@ function updateStudent($id,$fname,$lname,$age,$class,$roll){
     $students       = unserialize( $serialziedData );
     $found=false;
     foreach($students as $student){
-        if($student['roll'] == $roll && $student['id'] !='id'){
+        if($student['roll'] == $roll && $student['id'] !=$id){
             $found=true;
             break;
         }
@@ -161,6 +168,16 @@ function newId($allStudents){
     return $maxId+1;
 }
 
+function isAdmin(){
+    return ('admin'==$_SESSION['role']);
+}
+
+function isEditor(){
+    return ('editor'==$_SESSION['role']);
+}
+function hasSession(){
+    return (isAdmin() || isEditor());
+}
 
 
 
